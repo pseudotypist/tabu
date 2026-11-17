@@ -1,0 +1,81 @@
+# Tabu
+
+İngilizce, Türkçe ve Çince oynanan tabu oyunu. Tek sayfalık bir web uygulaması: iPhone'da Safari ile açılır, "Ana Ekrana Ekle" ile uygulama gibi kullanılır ve internetsiz çalışır.
+
+12 kategoride 50'şer kart, toplam **600 kart** bulunur. Çince ana kelimelerin ve
+beş yasak kelimenin tamamında ton işaretli pinyin gösterilir. Diğer dillerde
+oynarken Çince çevirisi açılırsa ana kelimenin pinyin okunuşu da görünür.
+
+Oyna: https://pseudotypist.github.io/tabu/
+
+## Bilgisayarda çalıştırma
+
+```bash
+python3 -m http.server 8765
+```
+
+Sonra tarayıcıda `http://localhost:8765` adresini aç. Dosyaya çift tıklayarak açmak yerine sunucu kullan; offline desteği ancak böyle çalışır.
+
+## iPhone'a kurma
+
+1. Klasörü HTTPS üzerinden yayınla (örneğin GitHub Pages).
+2. Adresi iPhone'da Safari ile aç.
+3. Paylaş düğmesi → "Ana Ekrana Ekle".
+4. Uygulamayı internet varken bir kez aç; sonrasında internetsiz de açılır.
+
+## Kart ekleme ve düzeltme
+
+Kartlar `data/` klasöründe, kategori başına bir dosyada durur. Her satır bir karttır:
+
+```
+SEVİYE|english,5 taboo words|türkçe,5 yasak kelime|中文,5个禁词|pinyin,5 taboo readings
+```
+
+- Alanlar `|` ile, kelimeler `,` ile ayrılır. Her dilde tam 6 öğe olmalı: ana kelime ve 5 yasak kelime.
+- Beşinci sütunda Çince ana kelimenin ve beş yasak kelimenin pinyin karşılıkları aynı sırayla yer alır. Tonlar işaretle yazılır; heceler boşlukla ayrılır. Nötr ton işaretsizdir. `一` ve `不` için sözlük tonları (`yī`, `bù`) kullanılır; konuşma sırasında oluşan ton değişimleri gösterilmez.
+- Eski dört sütunlu satırlar da okunabilir; bu satırlardaki kartlarda pinyin gösterilmez.
+- Üç dildeki ana kelime aynı kavram olmalı, çünkü oyunda birbirinin çevirisi olarak gösterilir. Yasak kelimelerin birebir çeviri olması gerekmez.
+- Seviye A1, A2, B1 veya B2 olur. Başına `=` konursa (örneğin `=B1`) elle sabitlenmiş demektir.
+
+Değişiklikten sonra kart dosyasını yeniden üret:
+
+```bash
+node tools/build-cards.mjs
+```
+
+Komuta CEFR-J kelime listesinin CSV dosyasının yolu verilirse, sabitlenmemiş kartların seviyesi o listeden yeniden okunur.
+
+### Yasak kelimelerin çevirisi
+
+Oyunda Çince oynayan takım her yasak kelimenin İngilizcesini, İngilizce oynayan takım Çincesini ve pinyinini görebilir. Bu çeviriler kartların içinde değil, üç ayrı dosyada durur:
+
+- `data/gloss-zh-en.txt`: `汉字|english`. Çince yasak kelimenin İngilizce anlamı.
+- `data/gloss-en-zh.txt`: `english|汉字`. İngilizce yasak kelimenin Çincesi.
+- `data/pinyin-extra.txt`: `汉字|pin yin`. Hiçbir kartta geçmeyen Çince çevirilerin okunuşu.
+
+Bir kelime yalnızca tek kartta farklı anlamdaysa satır `kelime@kart-kimliği|çeviri` biçiminde yazılır (örneğin `key@piano|键`). Kart kimliği İngilizce ana kelimedir; boşluk yerine tire kullanılır. Bir yasak kelime aynı zamanda başka bir kartın ana kelimesiyse çevirisi oradan otomatik alınır.
+
+Yeni kart eklediğinde derleme, çevirisi ya da pinyini eksik kalan kelimeleri `WARNING` satırlarıyla listeler; o kelimeler oyunda çevirisiz görünür.
+
+Türkçe yasak kelimelerin çevirisi yoktur; Türkçe yalnızca ana kelimede gösterilir.
+
+### Güncelleme
+
+Oyun internete bağlıyken her açılışta dosyaların yenisini sunucuya sorar, bu yüzden yeni sürüm bir sonraki açılışta gelir. Dosya listesi değişirse (yeni bir dosya eklenirse) `sw.js` içindeki `ASSETS` listesine ekle ve `CACHE` adını değiştir.
+
+Site `data/*.txt` dosyalarını doğrudan okumaz; üretilmiş `cards.js` dosyasını
+yükler. Veri değişiklikleriyle birlikte yeni `cards.js` dosyası da GitHub'a
+yüklenmelidir. Üretilmiş oyun dosyaları GitHub Pages üzerinde ayrıca derleme gerektirmeden çalışır.
+
+## Mobil uygulama
+
+Aynı dosyalar Capacitor ile Android ve iOS uygulaması olarak da paketlenir. Paketleme
+projesi (`android/`, `ios/`) bu deponun bir üst klasöründedir ve bu klasörü olduğu gibi
+kullanır. `native.js` titreşim, ekranın açık kalması, durum çubuğu rengi ve Android geri
+tuşunu yönetir; normal tarayıcıda hiçbir şey yapmaz.
+
+## Kaynak
+
+Mevcut İngilizce seviye etiketlerinin kaynağı: The CEFR-J Wordlist Version 1.5,
+compiled by Yukio Tono, Tokyo University of Foreign Studies. Yeni kartlarda
+yaklaşık A1–B2 seviyeleri kullanılmıştır; Çince için HSK etiketi verilmemiştir.
