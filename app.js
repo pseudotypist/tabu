@@ -183,11 +183,14 @@ if (!LANGS.includes(ui)) ui = 'en';
 
 // Appearance: 'auto' follows the system. The inline script in index.html applies the same choice
 // before the first paint (it reads the same 'tabu1.theme' key), so there is no light flash.
+// The dark theme is switched off for now: the game is always light and the Auto/Light/Dark switch is
+// hidden. Its code and CSS stay; set this to true here AND in index.html to bring it back.
+const DARK_THEME_ENABLED = false;
 const THEMES = ['auto', 'light', 'dark'];
 let themePref = store.get('theme', 'auto');
 if (!THEMES.includes(themePref)) themePref = 'auto';
 const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-const isDark = () => themePref === 'dark' || (themePref === 'auto' && !!darkQuery?.matches);
+const isDark = () => DARK_THEME_ENABLED && (themePref === 'dark' || (themePref === 'auto' && !!darkQuery?.matches));
 const applyTheme = () => { document.documentElement.dataset.theme = isDark() ? 'dark' : 'light'; };
 applyTheme();
 
@@ -520,8 +523,8 @@ const scoreChips = (teams, current) => teams.map((x, i) => `<div class="sc ${cur
 function viewHome() {
   const canResume = game && !game.over;
   return `<section class="screen home">
-    <div class="langs seg">${LANGS.map((l) => `<button class="${ui === l ? 'on' : ''}" data-act="lang" data-v="${l}">${LANG_NAME[l]}</button>`).join('')}</div>
-    <div class="themes seg compact" role="group" aria-label="${t('theme')}">${THEMES.map((m) => `<button class="${themePref === m ? 'on' : ''}" data-act="theme" data-v="${m}" aria-pressed="${themePref === m}">${t('theme' + m[0].toUpperCase() + m.slice(1))}</button>`).join('')}</div>
+    <div class="langs seg${DARK_THEME_ENABLED ? '' : ' solo'}">${LANGS.map((l) => `<button class="${ui === l ? 'on' : ''}" data-act="lang" data-v="${l}">${LANG_NAME[l]}</button>`).join('')}</div>
+    ${DARK_THEME_ENABLED ? `<div class="themes seg compact" role="group" aria-label="${t('theme')}">${THEMES.map((m) => `<button class="${themePref === m ? 'on' : ''}" data-act="theme" data-v="${m}" aria-pressed="${themePref === m}">${t('theme' + m[0].toUpperCase() + m.slice(1))}</button>`).join('')}</div>` : ''}
     <div class="hero" role="img" aria-label="Tabu">
       <div class="hcard hback"></div>
       <div class="hcard hfront"><b>TABU</b><i class="tape"></i><u></u><u></u><u></u></div>

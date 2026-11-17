@@ -194,7 +194,7 @@ h2:first-child { margin-top: 4px; }
 /* ---------- home ---------- */
 .home { justify-content: flex-start; gap: 12px; overflow-y: auto; }
 .home > * { flex-shrink: 0; }
-.themes { margin-bottom: auto; }
+.themes, .langs.solo { margin-bottom: auto; }
 .seg.compact { border-radius: 10px; }
 .seg.compact button { min-height: 34px; font-size: .85rem; }
 .hero { position: relative; height: 232px; margin-top: 12px; }
