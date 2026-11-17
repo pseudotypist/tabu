@@ -67,12 +67,33 @@ Site `data/*.txt` dosyalarını doğrudan okumaz; üretilmiş `cards.js` dosyas�
 yükler. Veri değişiklikleriyle birlikte yeni `cards.js` dosyası da GitHub'a
 yüklenmelidir. Üretilmiş oyun dosyaları GitHub Pages üzerinde ayrıca derleme gerektirmeden çalışır.
 
+## Klasörler
+
+- `web/`: oyunun kendisi (HTML, CSS, JS, kartlar). Bütün oyun değişiklikleri burada yapılır;
+  GitHub Pages bu klasörü https://pseudotypist.github.io/tabu/ adresinde yayınlar
+  (`.github/workflows/pages.yml`, `main` dalına her gönderimde).
+- `android/`, `ios/`: Capacitor ile yapılmış uygulama kabukları (uygulama kimliği
+  `com.pseudotypist.tabu`). İçlerine elle oyun kodu yazılmaz.
+- `scripts/`, `resources/`: `web/` klasörünü uygulamalara paketleyen betik, simge ve açılış ekranı kaynakları.
+
 ## Mobil uygulama
 
-Aynı dosyalar Capacitor ile Android ve iOS uygulaması olarak da paketlenir. Paketleme
-projesi (`android/`, `ios/`) bu deponun bir üst klasöründedir ve bu klasörü olduğu gibi
-kullanır. `native.js` titreşim, ekranın açık kalması, durum çubuğu rengi ve Android geri
-tuşunu yönetir; normal tarayıcıda hiçbir şey yapmaz.
+```bash
+npm install            # ilk seferde
+npm run build          # web/ klasöründen www/ üretir
+npm run ios:open       # dosyaları iOS'a kopyalar ve Xcode'u açar (orada ▶)
+npm run android:debug  # Android test APK'sı (android/app/build/outputs/apk/debug/)
+npm run android:release  # imzalı AAB + APK (Play Store için)
+npm run assets         # resources/mark.svg'den simge ve açılış ekranlarını yeniden üretir
+```
+
+- `www/` üretilmiş bir klasördür, elle düzenlenmez ve depoya girmez.
+- `web/native.js` titreşim, ekranın açık kalması, durum çubuğu rengi ve Android geri
+  tuşunu yönetir; normal tarayıcıda hiçbir şey yapmaz.
+- Android sürüm imzası depo dışındaki `~/Projects/2-personal/tabu-signing/`
+  klasöründen okunur. Bu klasörü yedekle; kaybolursa Play Store'a güncelleme yüklenemez.
+- Yeni sürümde `android/app/build.gradle` içindeki `versionCode`/`versionName` ile
+  Xcode'daki sürüm numarasını artır.
 
 ## Kaynak
 
